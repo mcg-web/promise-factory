@@ -1,0 +1,22 @@
+{
+    "name": "mcg-web/promise-factory",
+    "description": "This library tries to create a simple promise factory standard while waiting for a psr.",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "McGWeb\\PromiseFactory\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "McGWeb\\PromiseFactory\\Test\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^5.5|^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.1|^5.1"
+    },
+    "license": "MIT"
+}
