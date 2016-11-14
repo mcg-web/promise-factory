@@ -173,6 +173,39 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $factory->await(new \stdClass(), true);
     }
 
+    /**
+     * @dataProvider factoryDataProvider
+     * @param PromiseFactoryInterface $factory
+     *
+     * @expectedException \Exception
+     * @expectedExceptionMessage Cancel promise!
+     */
+    public function testCancel(PromiseFactoryInterface $factory)
+    {
+        $promise = $factory->create($resolve, $reject, function () {
+            throw new \Exception('Cancel promise!');
+        });
+
+        $factory->cancel($promise);
+        $factory->await($promise, true);
+    }
+
+    /**
+     * @dataProvider factoryDataProvider
+     * @param PromiseFactoryInterface $factory
+     *
+     * @expectedException \Exception
+     * @expectedExceptionMessage ::cancel" method must be called with a compatible Promise.
+     */
+    public function testCancelInvalidPromise(PromiseFactoryInterface $factory)
+    {
+        $factory->create($resolve, $reject, function () {
+            throw new \Exception('Cancel will never be called!');
+        });
+
+        $factory->cancel(new \stdClass());
+    }
+
     public function factoryDataProvider()
     {
         return [

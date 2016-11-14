@@ -12,6 +12,7 @@
 namespace McGWeb\PromiseFactory\Factory;
 
 use McGWeb\PromiseFactory\PromiseFactoryInterface;
+use React\Promise\CancellablePromiseInterface;
 use React\Promise\Deferred;
 use React\Promise\FulfilledPromise;
 use React\Promise\Promise;
@@ -40,7 +41,7 @@ class ReactPromiseFactory implements PromiseFactoryInterface
      *
      * @return FulfilledPromise a full filed Promise
      */
-    public static function createResolve($promiseOrValue)
+    public static function createResolve($promiseOrValue = null)
     {
         return \React\Promise\resolve($promiseOrValue);
     }
@@ -106,5 +107,18 @@ class ReactPromiseFactory implements PromiseFactoryInterface
         }
 
         return $resolvedValue;
+    }
+
+    /**
+     * Cancel a promise
+     *
+     * @param CancellablePromiseInterface $promise
+     */
+    public static function cancel($promise)
+    {
+        if (!$promise instanceof CancellablePromiseInterface) {
+            throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a compatible Promise.', __METHOD__));
+        }
+        $promise->cancel();
     }
 }

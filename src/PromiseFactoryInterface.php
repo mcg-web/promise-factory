@@ -31,7 +31,7 @@ interface PromiseFactoryInterface
      *
      * @return mixed a full filed Promise
      */
-    public static function createResolve($promiseOrValue);
+    public static function createResolve($promiseOrValue = null);
 
     /**
      * Creates a rejected promise for a reason if the reason is not a promise. If
@@ -53,7 +53,6 @@ interface PromiseFactoryInterface
      */
     public static function createAll($promisesOrValues);
 
-
     /**
      * Check if value is a promise
      *
@@ -72,4 +71,11 @@ interface PromiseFactoryInterface
      * @return mixed
      */
     public static function await($promise = null, $unwrap = false);
+
+    /**
+     * Cancel a promise
+     *
+     * @param $promise
+     */
+    public static function cancel($promise);
 }
