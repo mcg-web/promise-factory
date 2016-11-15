@@ -2,6 +2,7 @@
     "name": "mcg-web/promise-factory",
     "description": "This library tries to create a simple promise factory standard while waiting for a psr.",
     "type": "library",
+    "keywords": ["promise", "factory", "guzzle", "react"],
     "autoload": {
         "psr-4": {
             "McGWeb\\PromiseFactory\\": "src/"

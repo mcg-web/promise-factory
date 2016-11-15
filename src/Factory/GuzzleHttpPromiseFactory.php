@@ -26,7 +26,8 @@ class GuzzleHttpPromiseFactory implements PromiseFactoryInterface
      */
     public static function create(&$resolve = null, &$reject = null, callable $canceller = null)
     {
-        $promise = new Promise(null, $canceller);
+        $queue = \GuzzleHttp\Promise\queue();
+        $promise = new Promise([$queue, 'run'], $canceller);
 
         $reject = [$promise, 'reject'];
         $resolve = [$promise, 'resolve'];
@@ -39,7 +40,7 @@ class GuzzleHttpPromiseFactory implements PromiseFactoryInterface
      *
      * @return FulfilledPromise a full filed Promise
      */
-    public static function createResolve($promiseOrValue)
+    public static function createResolve($promiseOrValue = null)
     {
         $promise = \GuzzleHttp\Promise\promise_for($promiseOrValue);
 
@@ -65,7 +66,7 @@ class GuzzleHttpPromiseFactory implements PromiseFactoryInterface
      */
     public static function createAll($promisesOrValues)
     {
-        $promise = \GuzzleHttp\Promise\all($promisesOrValues);
+        $promise = empty($promisesOrValues) ? static::createResolve($promisesOrValues) : \GuzzleHttp\Promise\all($promisesOrValues);
 
         return $promise;
     }
@@ -96,6 +97,7 @@ class GuzzleHttpPromiseFactory implements PromiseFactoryInterface
             if (!static::isPromise($promise)) {
                 throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a Promise ("then" method).', __METHOD__));
             }
+
             /** @var Promise $promise */
             $promise->then(function ($values) use (&$resolvedValue) {
                 $resolvedValue = $values;
@@ -115,5 +117,18 @@ class GuzzleHttpPromiseFactory implements PromiseFactoryInterface
         }
 
         return $resolvedValue;
+    }
+
+    /**
+     * Cancel a promise
+     *
+     * @param PromiseInterface $promise
+     */
+    public static function cancel($promise)
+    {
+        if (!static::isPromise($promise, true)) {
+            throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a compatible Promise.', __METHOD__));
+        }
+        $promise->cancel();
     }
 }
