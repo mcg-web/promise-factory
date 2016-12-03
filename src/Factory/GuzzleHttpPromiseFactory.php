@@ -38,7 +38,7 @@ class GuzzleHttpPromiseFactory implements PromiseFactoryInterface
     /**
      * @inheritdoc
      *
-     * @return FulfilledPromise a full filed Promise
+     * @return PromiseInterface
      */
     public static function createResolve($promiseOrValue = null)
     {
@@ -50,11 +50,11 @@ class GuzzleHttpPromiseFactory implements PromiseFactoryInterface
     /**
      * @inheritdoc
      *
-     * @return RejectedPromise a rejected promise
+     * @return PromiseInterface
      */
-    public static function createReject($promiseOrValue)
+    public static function createReject($reason)
     {
-        $promise = \GuzzleHttp\Promise\rejection_for($promiseOrValue);
+        $promise = \GuzzleHttp\Promise\rejection_for($reason);
 
         return $promise;
     }

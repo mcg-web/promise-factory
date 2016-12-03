@@ -13,6 +13,7 @@ namespace McGWeb\PromiseFactory\Tests;
 
 use McGWeb\PromiseFactory\Factory\GuzzleHttpPromiseFactory;
 use McGWeb\PromiseFactory\Factory\ReactPromiseFactory;
+use McGWeb\PromiseFactory\Factory\WebonyxGraphQLSyncPromiseFactory;
 use McGWeb\PromiseFactory\PromiseFactoryInterface;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
@@ -209,8 +210,9 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     public function factoryDataProvider()
     {
         return [
-            [new GuzzleHttpPromiseFactory(), 'guzzle', '\\GuzzleHttp\\Promise\\PromiseInterface'],
-            [new ReactPromiseFactory(), 'react', '\\React\\Promise\\PromiseInterface'],
+            [new WebonyxGraphQLSyncPromiseFactory(), 'webonyxgraphql', 'GraphQL\\Executor\\Promise\\Adapter\\SyncPromise'],
+            [new GuzzleHttpPromiseFactory(), 'guzzle', 'GuzzleHttp\\Promise\\PromiseInterface'],
+            [new ReactPromiseFactory(), 'react', 'React\\Promise\\PromiseInterface'],
         ];
     }
 }

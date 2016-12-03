@@ -37,11 +37,11 @@ interface PromiseFactoryInterface
      * Creates a rejected promise for a reason if the reason is not a promise. If
      * the provided reason is a promise, then it is returned as-is.
      *
-     * @param mixed $promiseOrValue
+     * @param mixed $reason
      *
      * @return mixed a rejected promise
      */
-    public static function createReject($promiseOrValue);
+    public static function createReject($reason);
 
     /**
      * Given an array of promises, return a promise that is fulfilled when all the

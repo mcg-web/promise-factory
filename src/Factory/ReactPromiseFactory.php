@@ -51,9 +51,9 @@ class ReactPromiseFactory implements PromiseFactoryInterface
      *
      * @return RejectedPromise a rejected promise
      */
-    public static function createReject($promiseOrValue)
+    public static function createReject($reason)
     {
-        return \React\Promise\reject($promiseOrValue);
+        return \React\Promise\reject($reason);
     }
 
     /**
