@@ -11,6 +11,7 @@
 
 namespace McGWeb\PromiseFactory\Factory;
 
+use GraphQL\Deferred;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
@@ -105,32 +106,48 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function await($promise = null, $unwrap = false)
     {
-        $resolvedValue = null;
-
-        if (null === $promise) {
-            $promise = new SyncPromise();
-        }
-        $exception = null;
-        if (!static::isPromise($promise)) {
-            throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a Promise ("then" method).', __METHOD__));
-        }
-
         $promiseAdapter = self::getWebonyxPromiseAdapter();
-        try {
-            $resolvedValue = $promiseAdapter->wait(new Promise($promise, $promiseAdapter));
-        } catch (\Exception $reason) {
-            $exception = $reason;
-        }
-        if ($exception instanceof \Exception) {
-            if (!$unwrap) {
-                return $exception;
-            }
-            throw $exception;
-        }
 
-        return $resolvedValue;
+        if (null !== $promise) {
+            $resolvedValue = null;
+            $exception = null;
+            if (!static::isPromise($promise)) {
+                throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a Promise ("then" method).', __METHOD__));
+            }
+
+            if (!$promise instanceof Promise) {
+                $promise = new Promise($promise, $promiseAdapter);
+            }
+
+            try {
+                $resolvedValue = $promiseAdapter->wait($promise);
+            } catch (\Exception $reason) {
+                $exception = $reason;
+            }
+            if ($exception instanceof \Exception) {
+                if (!$unwrap) {
+                    return $exception;
+                }
+                throw $exception;
+            }
+
+            return $resolvedValue;
+        } else {
+            $dfdQueue = Deferred::getQueue();
+            $promiseQueue = SyncPromise::getQueue();
+
+            while (!($dfdQueue->isEmpty() && $promiseQueue->isEmpty())) {
+                Deferred::runQueue();
+                SyncPromise::runNext();
+            }
+
+            return null;
+        }
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function cancel($promise)
     {
         $hash = spl_object_hash($promise);
@@ -139,8 +156,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
         }
         $canceller = self::$cancellers[$hash];
         try {
-            $value = $canceller([$promise, 'resolve'], [$promise, 'reject']);
-            $promise->resolve($value);
+            $canceller([$promise, 'resolve'], [$promise, 'reject']);
         } catch (\Exception $reason) {
             $promise->reject($reason);
         }
