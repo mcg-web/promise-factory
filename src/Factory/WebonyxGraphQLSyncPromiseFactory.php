@@ -19,6 +19,9 @@ use McGWeb\PromiseFactory\PromiseFactoryInterface;
 
 class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
 {
+    /** @var callable[] */
+    private static $cancellers = [];
+
     /**
      * @var SyncPromiseAdapter
      */
@@ -53,8 +56,11 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
             $resolve = $promiseResolver;
             $reject = $promiseReject;
         });
+        $adoptedPromise = $promise->adoptedPromise;
 
-        return $promise->adoptedPromise;
+        self::$cancellers[spl_object_hash($adoptedPromise)] = $canceller;
+
+        return $adoptedPromise;
     }
 
     /**
@@ -127,5 +133,16 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
 
     public static function cancel($promise)
     {
+        $hash = spl_object_hash($promise);
+        if (!isset(self::$cancellers[$hash])) {
+            throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a compatible Promise.', __METHOD__));
+        }
+        $canceller = self::$cancellers[$hash];
+        try {
+            $value = $canceller([$promise, 'resolve'], [$promise, 'reject']);
+            $promise->resolve($value);
+        } catch (\Exception $reason) {
+            $promise->reject($reason);
+        }
     }
 }
