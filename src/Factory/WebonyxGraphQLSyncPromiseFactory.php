@@ -57,11 +57,9 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
             $resolve = $promiseResolver;
             $reject = $promiseReject;
         });
-        $adoptedPromise = $promise->adoptedPromise;
+        self::$cancellers[spl_object_hash($promise)] = $canceller;
 
-        self::$cancellers[spl_object_hash($adoptedPromise)] = $canceller;
-
-        return $adoptedPromise;
+        return $promise;
     }
 
     /**
@@ -69,7 +67,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function createResolve($promiseOrValue = null)
     {
-        return static::getWebonyxPromiseAdapter()->createResolvedPromise($promiseOrValue)->adoptedPromise;
+        return static::getWebonyxPromiseAdapter()->createResolvedPromise($promiseOrValue);
     }
 
     /**
@@ -77,7 +75,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function createReject($reason)
     {
-        return static::getWebonyxPromiseAdapter()->createRejectedPromise($reason)->adoptedPromise;
+        return static::getWebonyxPromiseAdapter()->createRejectedPromise($reason);
     }
 
     /**
@@ -85,7 +83,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function createAll($promisesOrValues)
     {
-        return static::getWebonyxPromiseAdapter()->createPromiseAll($promisesOrValues)->adoptedPromise;
+        return static::getWebonyxPromiseAdapter()->createPromiseAll($promisesOrValues);
     }
 
     /**
@@ -93,7 +91,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function isPromise($value, $strict = false)
     {
-        $isStrictPromise = $value instanceof SyncPromise;
+        $isStrictPromise = $value instanceof Promise;
         if ($strict) {
             return $isStrictPromise;
         }
@@ -151,14 +149,15 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
     public static function cancel($promise)
     {
         $hash = spl_object_hash($promise);
-        if (!isset(self::$cancellers[$hash])) {
+        if (!static::isPromise($promise) || !isset(self::$cancellers[$hash])) {
             throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a compatible Promise.', __METHOD__));
         }
         $canceller = self::$cancellers[$hash];
+        $adoptedPromise = $promise->adoptedPromise;
         try {
-            $canceller([$promise, 'resolve'], [$promise, 'reject']);
+            $canceller([$adoptedPromise, 'resolve'], [$adoptedPromise, 'reject']);
         } catch (\Exception $reason) {
-            $promise->reject($reason);
+            $adoptedPromise->reject($reason);
         }
     }
 }

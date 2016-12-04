@@ -210,7 +210,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     public function factoryDataProvider()
     {
         return [
-            [new WebonyxGraphQLSyncPromiseFactory(), 'webonyxgraphql', 'GraphQL\\Executor\\Promise\\Adapter\\SyncPromise'],
+            [new WebonyxGraphQLSyncPromiseFactory(), 'webonyxgraphql', 'GraphQL\\Executor\\Promise\\Promise'],
             [new GuzzleHttpPromiseFactory(), 'guzzle', 'GuzzleHttp\\Promise\\PromiseInterface'],
             [new ReactPromiseFactory(), 'react', 'React\\Promise\\PromiseInterface'],
         ];
