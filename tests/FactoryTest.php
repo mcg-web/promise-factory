@@ -18,6 +18,10 @@ use McGWeb\PromiseFactory\PromiseFactoryInterface;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
 {
+    const CONTEXT_WEBONYX_GRAPHQL_SYNC ='webonyxgraphqlsync';
+    const CONTEXT_GUZZLE = 'guzzle';
+    const CONTEXT_REACT = 'react';
+
     /**
      * @dataProvider factoryDataProvider
      * @param string $promiseClass
@@ -134,6 +138,9 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testAwaitWithoutPromise(PromiseFactoryInterface $factory, $context)
     {
+        if ($context === self::CONTEXT_WEBONYX_GRAPHQL_SYNC) {
+            $this->markTestSkipped('This feature is not supported for the moment.');
+        }
         $expected = 'expected value';
         $promise = $factory->createResolve($expected);
         $actual = null;
@@ -210,9 +217,9 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     public function factoryDataProvider()
     {
         return [
-            [new WebonyxGraphQLSyncPromiseFactory(), 'webonyxgraphql', 'GraphQL\\Executor\\Promise\\Promise'],
-            [new GuzzleHttpPromiseFactory(), 'guzzle', 'GuzzleHttp\\Promise\\PromiseInterface'],
-            [new ReactPromiseFactory(), 'react', 'React\\Promise\\PromiseInterface'],
+            [new WebonyxGraphQLSyncPromiseFactory(), self::CONTEXT_WEBONYX_GRAPHQL_SYNC, 'GraphQL\\Executor\\Promise\\Promise'],
+            [new GuzzleHttpPromiseFactory(), self::CONTEXT_GUZZLE, 'GuzzleHttp\\Promise\\PromiseInterface'],
+            [new ReactPromiseFactory(), self::CONTEXT_REACT, 'React\\Promise\\PromiseInterface'],
         ];
     }
 }

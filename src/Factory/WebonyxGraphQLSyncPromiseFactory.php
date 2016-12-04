@@ -106,41 +106,25 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
     {
         $promiseAdapter = self::getWebonyxPromiseAdapter();
 
-        if (null !== $promise) {
-            $resolvedValue = null;
-            $exception = null;
-            if (!static::isPromise($promise)) {
-                throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a Promise ("then" method).', __METHOD__));
-            }
-
-            if (!$promise instanceof Promise) {
-                $promise = new Promise($promise, $promiseAdapter);
-            }
-
-            try {
-                $resolvedValue = $promiseAdapter->wait($promise);
-            } catch (\Exception $reason) {
-                $exception = $reason;
-            }
-            if ($exception instanceof \Exception) {
-                if (!$unwrap) {
-                    return $exception;
-                }
-                throw $exception;
-            }
-
-            return $resolvedValue;
-        } else {
-            $dfdQueue = Deferred::getQueue();
-            $promiseQueue = SyncPromise::getQueue();
-
-            while (!($dfdQueue->isEmpty() && $promiseQueue->isEmpty())) {
-                Deferred::runQueue();
-                SyncPromise::runNext();
-            }
-
-            return null;
+        $resolvedValue = null;
+        $exception = null;
+        if (!static::isPromise($promise)) {
+            throw new \InvalidArgumentException(sprintf('The "%s" method must be called with a Promise ("then" method).', __METHOD__));
         }
+
+        try {
+            $resolvedValue = $promiseAdapter->wait($promise);
+        } catch (\Exception $reason) {
+            $exception = $reason;
+        }
+        if ($exception instanceof \Exception) {
+            if (!$unwrap) {
+                return $exception;
+            }
+            throw $exception;
+        }
+
+        return $resolvedValue;
     }
 
     /**
