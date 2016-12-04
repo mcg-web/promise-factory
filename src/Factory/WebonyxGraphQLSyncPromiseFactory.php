@@ -11,8 +11,6 @@
 
 namespace McGWeb\PromiseFactory\Factory;
 
-use GraphQL\Deferred;
-use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
@@ -104,6 +102,9 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function await($promise = null, $unwrap = false)
     {
+        if (null === $promise) {
+            return null;
+        }
         $promiseAdapter = self::getWebonyxPromiseAdapter();
 
         $resolvedValue = null;
