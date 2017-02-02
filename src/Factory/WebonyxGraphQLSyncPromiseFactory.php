@@ -51,7 +51,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function create(&$resolve = null, &$reject = null, callable $canceller = null)
     {
-        $promise = static::getWebonyxPromiseAdapter()->createPromise(function(callable $promiseResolver, callable $promiseReject = null) use (&$resolve, &$reject, &$canceller){
+        $promise = static::getWebonyxPromiseAdapter()->create(function(callable $promiseResolver, callable $promiseReject = null) use (&$resolve, &$reject, &$canceller){
             $resolve = $promiseResolver;
             $reject = $promiseReject;
         });
@@ -65,7 +65,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function createResolve($promiseOrValue = null)
     {
-        return static::getWebonyxPromiseAdapter()->createResolvedPromise($promiseOrValue);
+        return static::getWebonyxPromiseAdapter()->createFulfilled($promiseOrValue);
     }
 
     /**
@@ -73,7 +73,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function createReject($reason)
     {
-        return static::getWebonyxPromiseAdapter()->createRejectedPromise($reason);
+        return static::getWebonyxPromiseAdapter()->createRejected($reason);
     }
 
     /**
@@ -81,7 +81,7 @@ class WebonyxGraphQLSyncPromiseFactory implements PromiseFactoryInterface
      */
     public static function createAll($promisesOrValues)
     {
-        return static::getWebonyxPromiseAdapter()->createPromiseAll($promisesOrValues);
+        return static::getWebonyxPromiseAdapter()->all($promisesOrValues);
     }
 
     /**
